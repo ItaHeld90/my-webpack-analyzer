@@ -1,58 +1,94 @@
-const { groupBy, prop, pick, head, compose, map, sum, chain, forEach, mergeAll, filter } = require('ramda');
+const {
+	groupBy,
+	prop,
+	pick,
+	head,
+	compose,
+	map,
+	sum,
+	chain,
+	forEach,
+	mergeAll,
+	filter,
+	keys,
+	toPairs,
+	apply,
+	objOf,
+} = require('ramda');
+const R = require('ramda');
 
 const rootId = 1995;
 
 const content = require('F:/New/G2/PyramidG2/clientx/webpack-stats.json');
 
 const modules = map(pick(['id', 'name', 'issuerId', 'size']), content.modules);
-const modulesById = compose(
+
+const groupModulesById = compose(
 	map(head),
 	groupBy(prop('id'))
-)(modules);
+);
+const modulesById = groupModulesById(modules);
 const modulesByIssuerId = groupBy(prop('issuerId'), modules);
 
-const getDependancies = id => modulesByIssuerId[id] || [];
-
-const visitedModules = new Set();
-const result = {};
+const getDependencies = id => modulesByIssuerId[id] || [];
 
 function getDependencyTree(rootId) {
-    const visitedIds = new Set();
-    const isFirstEncounter = id => !visitedIds.has(id);
+	const visitedIds = new Set();
+	const isFirstEncounter = id => !visitedIds.has(id);
+	const addToVisited = id => {
+		visitedIds.add(id);
+	};
 
 	function recurse(id) {
-        const getDependencyIds = compose(filter(isFirstEncounter), map(prop('id')), getDependancies);
-        const buildTree = compose(mergeAll , map(recurse), getDependencyIds);
+		const getDependencyIds = compose(
+			filter(isFirstEncounter),
+			map(prop('id')),
+			getDependencies
+		);
+		const buildTree = compose(
+			mergeAll,
+			map(recurse),
+			getDependencyIds
+		);
 
-        return { [id]: buildTree(id) };
-    }
-    
-    return recurse(rootId);
+		forEach(addToVisited, visitedIds);
+		return { [id]: buildTree(id) };
+	}
+
+	return recurse(rootId);
 }
 
-console.log(getDependencyTree(rootId));
+const dependencyTree = getDependencyTree(rootId);
 
-function calcSizes(moduleId) {
-	const dependencies = getDependancies(Number(moduleId));
-	const unvisited = dependencies.filter(d => !visitedModules.has(d.id));
-	const unvisitedIds = unvisited.map(prop('id'));
-	const calcTotalDependanciesSize = compose(
-		sum,
-		map(prop('size'))
+const result = {};
+
+function calcSizes(dependencyTree) {
+	const getRootId = compose(
+		head,
+		keys
 	);
-	const dependenciesSize = calcTotalDependanciesSize(unvisited);
+	const rootId = getRootId(dependencyTree);
+	const dependencies = dependencyTree[rootId];
 
-	// add new unvisited
-	forEach(id => visitedModules.add(id), unvisitedIds);
+	const splitToObjects = compose(
+		map(apply(objOf)),
+		toPairs
+	);
+	const getDependenciesSize = compose(
+		sum,
+		map(calcSizes),
+		splitToObjects
+	);
 
-	const totalSize = dependenciesSize + sum(chain(calcSizes, unvisitedIds));
+	const root = modulesById[rootId];
+	const totalSize = root.size + getDependenciesSize(dependencies);
 
 	if (totalSize > 0) {
-		result[moduleId] = totalSize;
+		result[rootId] = totalSize;
 	}
 
 	return totalSize;
 }
 
-console.log(calcSizes(rootId));
+console.log(calcSizes(dependencyTree));
 console.log(result);
