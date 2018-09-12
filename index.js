@@ -13,7 +13,6 @@ const {
 	keys,
 	toPairs,
 	apply,
-	objOf,
 } = require('ramda');
 const R = require('ramda');
 
@@ -62,22 +61,11 @@ const dependencyTree = getDependencyTree(rootId);
 
 const result = {};
 
-function calcSizes(dependencyTree) {
-	const getRootId = compose(
-		head,
-		keys
-	);
-	const rootId = getRootId(dependencyTree);
-	const dependencies = dependencyTree[rootId];
-
-	const splitToObjects = compose(
-		map(apply(objOf)),
-		toPairs
-	);
+function calcSizes(rootId, dependencies) {
 	const getDependenciesSize = compose(
 		sum,
-		map(calcSizes),
-		splitToObjects
+		map(apply(calcSizes)),
+		toPairs
 	);
 
 	const root = modulesById[rootId];
@@ -90,5 +78,5 @@ function calcSizes(dependencyTree) {
 	return totalSize;
 }
 
-console.log(calcSizes(dependencyTree));
+console.log(calcSizes(rootId, dependencyTree[rootId]));
 console.log(result);
