@@ -14,23 +14,30 @@ const {
 	filter,
 } = require('ramda');
 
+interface ModuleData {
+	id: number;
+	name: string;
+	issuerId: number;
+	size: number;
+}
+
 const rootId = 1995;
 
 const content = require('F:/New/G2/PyramidG2/clientx/webpack-stats.json');
 
-const modules = map(pick(['id', 'name', 'issuerId', 'size']), content.modules);
+const modules: ModuleData[] = map(pick(['id', 'name', 'issuerId', 'size']), content.modules);
 
 const groupModulesById = compose(
 	map(head),
 	groupBy(prop('id'))
 );
 
-export const modulesById = groupModulesById(modules);
+export const modulesById: { [moduleId: number]: ModuleData } = groupModulesById(modules);
 const modulesByIssuerId = groupBy(prop('issuerId'), modules);
 
 const getDependencies = (id: number) => modulesByIssuerId[id] || [];
 
-function getDependencyTree(rootId: number) {
+function getDependencyTree(rootId: number): { [id: number]: any } {
 	function recurse(id: number) {
 		const getDependencyIds = compose(
 			map(prop('id')),
@@ -52,7 +59,7 @@ function getDependencyTree(rootId: number) {
 // Get dependency tree
 const dependencyTree = getDependencyTree(rootId);
 
-function getDependencyMap(rootId: number) {
+function getDependencyMap(rootId: number): { [id: number]: number[] } {
 	function recurse(id: number) {
 		const getDependencyIds = compose(
 			map(prop('id')),
@@ -73,10 +80,10 @@ function getDependencyMap(rootId: number) {
 // Get dependency map
 export const dependencyMap = getDependencyMap(rootId);
 
-function calcSizes(rootId: number, dependencies: number[]) {
+function calcSizes(rootId: number, dependencies: { [id: number]: Object }): { [id: number]: number } {
 	const result: { [id: number]: number } = {};
 
-	function recurse(rootId: number, dependencies: number[]) {
+	function recurse(rootId: number, dependencies: { [id: number]: Object }) {
 		const getDependenciesSize = compose(
 			sum,
 			map(apply(recurse)),
