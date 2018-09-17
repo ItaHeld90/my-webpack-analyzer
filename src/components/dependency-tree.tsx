@@ -2,9 +2,10 @@ import * as React from 'react';
 import { Tree } from 'antd';
 import { observable, action } from 'mobx';
 import { observer } from 'mobx-react';
+import { compose, prop, sortWith, descend } from 'ramda';
 
+import { calcPercantage, trace } from '../utils/helper-utils';
 import { ModuleData } from '..';
-import { getFileName } from '../utils/helper-utils';
 import { DependencyTreeTitle } from './dependency-tree-title';
 
 import 'antd/lib/tree/style/css';
@@ -35,13 +36,37 @@ export class DependencyTree extends React.Component<DependencyTreeProps> {
 
 	loop = (moduleId: number): JSX.Element => {
 		const { dependencyMap, modulesById, sizesMap } = this.props;
+		const moduleData = modulesById[moduleId];
+		const calculatedSize = sizesMap[moduleId];
+
+		const getTotalSizeById = (id: number) => sizesMap[id];
+		const getParentTotalSize = compose(
+			getTotalSizeById,
+			prop('issuerId')
+		);
+
+		const parentSize = getParentTotalSize(moduleData);
+		const percentage = parentSize != null ? calcPercantage(parentSize, calculatedSize) : 100;
+
+		const getDependenciesById = (id: number) => dependencyMap[id] || [];
+		const getSortedDependencies: (id: number) => number[] = compose(
+			sortWith([descend(getTotalSizeById)]),
+			getDependenciesById
+		);
+		const dependencies: number[] = getSortedDependencies(moduleId);
 
 		return (
 			<TreeNode
 				key={moduleId.toString()}
-				title={<DependencyTreeTitle moduleData={modulesById[moduleId]} calculatedSize={sizesMap[moduleId]} />}
+				title={
+					<DependencyTreeTitle
+						moduleData={moduleData}
+						calculatedSize={calculatedSize}
+						percentage={percentage}
+					/>
+				}
 			>
-				{dependencyMap[moduleId] && dependencyMap[moduleId].map(this.loop)}
+				{dependencies.map(this.loop)}
 			</TreeNode>
 		);
 	};
