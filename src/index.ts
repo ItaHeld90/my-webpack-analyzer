@@ -9,10 +9,8 @@ const {
 	mergeAll,
 	toPairs,
 	apply,
-	pickBy,
 	isEmpty,
 	complement,
-	tap,
 	filter,
 } = require('ramda');
 
@@ -26,13 +24,14 @@ const groupModulesById = compose(
 	map(head),
 	groupBy(prop('id'))
 );
-const modulesById = groupModulesById(modules);
+
+export const modulesById = groupModulesById(modules);
 const modulesByIssuerId = groupBy(prop('issuerId'), modules);
 
-const getDependencies = id => modulesByIssuerId[id] || [];
+const getDependencies = (id: number) => modulesByIssuerId[id] || [];
 
-function getDependencyTree(rootId) {
-	function recurse(id) {
+function getDependencyTree(rootId: number) {
+	function recurse(id: number) {
 		const getDependencyIds = compose(
 			map(prop('id')),
 			getDependencies
@@ -53,8 +52,8 @@ function getDependencyTree(rootId) {
 // Get dependency tree
 const dependencyTree = getDependencyTree(rootId);
 
-function getDependencyMap(rootId) {
-	function recurse(id) {
+function getDependencyMap(rootId: number) {
+	function recurse(id: number) {
 		const getDependencyIds = compose(
 			map(prop('id')),
 			getDependencies
@@ -72,28 +71,29 @@ function getDependencyMap(rootId) {
 }
 
 // Get dependency map
-const dependencyMap = getDependencyMap(rootId);
+export const dependencyMap = getDependencyMap(rootId);
 
-const result = {};
+function calcSizes(rootId: number, dependencies: number[]) {
+	const result: { [id: number]: number } = {};
 
-function calcSizes(rootId, dependencies) {
-	const getDependenciesSize = compose(
-		sum,
-		map(apply(calcSizes)),
-		toPairs
-	);
+	function recurse(rootId: number, dependencies: number[]) {
+		const getDependenciesSize = compose(
+			sum,
+			map(apply(recurse)),
+			toPairs
+		);
 
-	const root = modulesById[rootId];
-	const totalSize = root.size + getDependenciesSize(dependencies);
+		const root = modulesById[rootId];
+		const totalSize = root.size + getDependenciesSize(dependencies);
 
-	if (totalSize > 0) {
-		result[rootId] = totalSize;
+		if (totalSize > 0) {
+			result[rootId] = totalSize;
+		}
 	}
 
-	return totalSize;
+	recurse(rootId, dependencies);
+	return result;
 }
 
 // Get all module sizes
-const sizes = calcSizes(rootId, dependencyTree[rootId]);
-
-console.log(dependencyMap);
+export const sizesMap = calcSizes(rootId, dependencyTree[rootId]);
