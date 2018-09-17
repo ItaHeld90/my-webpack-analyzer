@@ -1,14 +1,27 @@
 {
-  "name": "proj",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "ramda": "0.25.0"
-  }
+	"name": "proj",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "node index.js",
+		"start": "webpack"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"mobx": "5.1.1",
+		"mobx-react": "5.2.8",
+		"ramda": "0.25.0",
+		"react": "16.5.1",
+		"react-dom": "16.5.1"
+	},
+	"devDependencies": {
+		"@types/react": "16.4.14",
+		"@types/react-dom": "16.0.7",
+		"awesome-typescript-loader": "3.4.1",
+		"source-map-loader": "0.2.3",
+		"typescript": "3.0.3",
+		"webpack": "3.10.0"
+	}
 }
