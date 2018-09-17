@@ -9,8 +9,12 @@ const {
 	mergeAll,
 	toPairs,
 	apply,
+	pickBy,
+	isEmpty,
+	complement,
+	tap,
+	filter,
 } = require('ramda');
-const R = require('ramda');
 
 const rootId = 1995;
 
@@ -46,8 +50,8 @@ function getDependencyTree(rootId) {
 	return recurse(rootId);
 }
 
+// Get dependency tree
 const dependencyTree = getDependencyTree(rootId);
-console.log(dependencyTree);
 
 function getDependencyMap(rootId) {
 	function recurse(id) {
@@ -61,11 +65,14 @@ function getDependencyMap(rootId) {
 		return mergeAll([{ [id]: dependencyIds }, ...map(recurse, dependencyIds)]);
 	}
 
-	return recurse(rootId);
+	return compose(
+		filter(complement(isEmpty)),
+		recurse
+	)(rootId);
 }
 
+// Get dependency map
 const dependencyMap = getDependencyMap(rootId);
-console.log(dependencyMap);
 
 const result = {};
 
@@ -86,6 +93,7 @@ function calcSizes(rootId, dependencies) {
 	return totalSize;
 }
 
+// Get all module sizes
 const sizes = calcSizes(rootId, dependencyTree[rootId]);
-console.log(sizes);
-console.log(result);
+
+console.log(dependencyMap);
