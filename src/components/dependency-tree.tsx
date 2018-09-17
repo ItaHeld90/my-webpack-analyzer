@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 
 import { ModuleData } from '..';
 import { getFileName } from '../utils/helper-utils';
+import { DependencyTreeTitle } from './dependency-tree-title';
 
 import 'antd/lib/tree/style/css';
 
@@ -33,10 +34,13 @@ export class DependencyTree extends React.Component<DependencyTreeProps> {
 	}
 
 	loop = (moduleId: number): JSX.Element => {
-		const { dependencyMap, modulesById } = this.props;
+		const { dependencyMap, modulesById, sizesMap } = this.props;
 
 		return (
-			<TreeNode key={moduleId.toString()} title={getFileName(modulesById[moduleId].name)}>
+			<TreeNode
+				key={moduleId.toString()}
+				title={<DependencyTreeTitle moduleData={modulesById[moduleId]} calculatedSize={sizesMap[moduleId]} />}
+			>
 				{dependencyMap[moduleId] && dependencyMap[moduleId].map(this.loop)}
 			</TreeNode>
 		);
