@@ -6,11 +6,7 @@ const {
 	compose,
 	map,
 	sum,
-	chain,
-	forEach,
 	mergeAll,
-	filter,
-	keys,
 	toPairs,
 	apply,
 } = require('ramda');
@@ -32,15 +28,8 @@ const modulesByIssuerId = groupBy(prop('issuerId'), modules);
 const getDependencies = id => modulesByIssuerId[id] || [];
 
 function getDependencyTree(rootId) {
-	const visitedIds = new Set();
-	const isFirstEncounter = id => !visitedIds.has(id);
-	const addToVisited = id => {
-		visitedIds.add(id);
-	};
-
 	function recurse(id) {
 		const getDependencyIds = compose(
-			filter(isFirstEncounter),
 			map(prop('id')),
 			getDependencies
 		);
@@ -50,7 +39,7 @@ function getDependencyTree(rootId) {
 			getDependencyIds
 		);
 
-		forEach(addToVisited, visitedIds);
+		// TODO: addToVisited
 		return { [id]: buildTree(id) };
 	}
 
@@ -58,6 +47,25 @@ function getDependencyTree(rootId) {
 }
 
 const dependencyTree = getDependencyTree(rootId);
+console.log(dependencyTree);
+
+function getDependencyMap(rootId) {
+	function recurse(id) {
+		const getDependencyIds = compose(
+			map(prop('id')),
+			getDependencies
+		);
+
+		const dependencyIds = getDependencyIds(id);
+
+		return mergeAll([{ [id]: dependencyIds }, ...map(recurse, dependencyIds)]);
+	}
+
+	return recurse(rootId);
+}
+
+const dependencyMap = getDependencyMap(rootId);
+console.log(dependencyMap);
 
 const result = {};
 
@@ -78,5 +86,6 @@ function calcSizes(rootId, dependencies) {
 	return totalSize;
 }
 
-console.log(calcSizes(rootId, dependencyTree[rootId]));
+const sizes = calcSizes(rootId, dependencyTree[rootId]);
+console.log(sizes);
 console.log(result);
