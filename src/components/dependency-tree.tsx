@@ -2,7 +2,9 @@ import * as React from 'react';
 import { Tree } from 'antd';
 import { observable, action } from 'mobx';
 import { observer } from 'mobx-react';
+
 import { ModuleData } from '..';
+import { getFileName } from '../utils/helper-utils';
 
 import 'antd/lib/tree/style/css';
 
@@ -34,7 +36,7 @@ export class DependencyTree extends React.Component<DependencyTreeProps> {
 		const { dependencyMap, modulesById } = this.props;
 
 		return (
-			<TreeNode key={moduleId.toString()} title={modulesById[moduleId].name}>
+			<TreeNode key={moduleId.toString()} title={getFileName(modulesById[moduleId].name)}>
 				{dependencyMap[moduleId] && dependencyMap[moduleId].map(this.loop)}
 			</TreeNode>
 		);
