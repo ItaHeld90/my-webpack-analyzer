@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
+
 import { ModuleData, rootId } from '..';
+import { DependencyTree } from './dependency-tree';
 
 export interface AnalyzerMainProps {
 	dependencyMap: { [id: number]: number[] };
@@ -12,10 +14,10 @@ export interface AnalyzerMainProps {
 @observer
 export class AnalyzerMain extends React.Component<AnalyzerMainProps, {}> {
 	render() {
-		const { rootId, sizesMap } = this.props;
-
-		return <div>{
-			`${rootId}: ${sizesMap[rootId]}`
-		}</div>;
+		return (
+			<div>
+				<DependencyTree {...this.props} />
+			</div>
+		);
 	}
 }
