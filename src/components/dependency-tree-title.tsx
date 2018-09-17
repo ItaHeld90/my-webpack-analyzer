@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { ModuleData } from '..';
 import { Tooltip } from 'antd';
-import { getFileName } from '../utils/helper-utils';
+
+import { getFileName, formatSize } from '../utils/helper-utils';
 
 import 'antd/lib/tooltip/style/css';
 
@@ -23,8 +24,8 @@ export class DependencyTreeTitle extends React.Component<DependencyTreeTitleProp
 					</Tooltip>
 				</div>
 				<div style={{ display: 'flex', flex: 1, color: '#999', justifyContent: 'space-around' }}>
-					<div style={{ marginRight: 10 }}>{`self size: ${moduleData.size}`}</div>
-					<div style={{ marginRight: 10 }}>{`total size: ${calculatedSize}`}</div>
+					<div style={{ marginRight: 10 }}>{`self size: ${formatSize(moduleData.size)}`}</div>
+					<div style={{ marginRight: 10 }}>{`total size: ${formatSize(calculatedSize)}`}</div>
 					<div style={{ marginRight: 10 }}>{`${percentage}%`}</div>
 				</div>
 			</div>

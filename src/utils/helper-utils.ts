@@ -1,4 +1,5 @@
 import { compose, split, last, multiply, curry, flip, divide } from 'ramda';
+import * as numeral from 'numeral';
 
 export const trace = (x: any) => {
 	console.log(x);
@@ -22,3 +23,6 @@ export const calcPercantage = compose(
 	// @ts-ignore
 	flip(divide)
 );
+
+const formatNumber = curry((format: string, number) => numeral(number).format(format));
+export const formatSize = formatNumber('0a');
