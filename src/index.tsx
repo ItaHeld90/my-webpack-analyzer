@@ -1,12 +1,12 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 
-import { AnalyzerMain } from "./components/AnalyzerMain";
-import { dependencyMap, sizesMap, modulesById } from './index';
+import { AnalyzerMain } from './components/AnalyzerMain';
+import { dependencyMap, sizesMap, modulesById, rootId } from './index';
 
 console.log(sizesMap);
 
 ReactDOM.render(
-    <AnalyzerMain />,
-    document.getElementById("example")
+	<AnalyzerMain dependencyMap={dependencyMap} sizesMap={sizesMap} modulesById={modulesById} rootId={rootId} />,
+	document.getElementById('example')
 );

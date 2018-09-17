@@ -14,14 +14,14 @@ const {
 	filter,
 } = require('ramda');
 
-interface ModuleData {
+export interface ModuleData {
 	id: number;
 	name: string;
 	issuerId: number;
 	size: number;
 }
 
-const rootId = 1995;
+export const rootId = 1995;
 
 const content = require('F:/New/G2/PyramidG2/clientx/webpack-stats.json');
 
@@ -96,6 +96,8 @@ function calcSizes(rootId: number, dependencies: { [id: number]: Object }): { [i
 		if (totalSize > 0) {
 			result[rootId] = totalSize;
 		}
+
+		return totalSize;
 	}
 
 	recurse(rootId, dependencies);
